@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockAI - Intelligent Stock Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gradient-to-r from-slate-50 to-blue-50">
+    <div class="min-h-screen">
+        <!-- Navbar -->
+        <nav class="bg-white shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-3">
+                        <i class="bi bi-graph-up-arrow text-3xl text-blue-600"></i>
+                        <h1 class="text-2xl font-bold text-blue-600">StockAI Analytics</h1>
+                    </div>
+                    <div class="hidden md:flex space-x-4">
+                        <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-100">
+                            <i class="bi bi-moon-stars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto p-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Stock Cards -->
+                <div class="stock-card bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer" data-stock="AAPL">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Apple Inc.</h3>
+                            <p class="text-sm text-gray-600">AAPL</p>
+                        </div>
+                        <i class="bi bi-apple text-3xl text-gray-700"></i>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm">
+                            <p>Historical Analysis:</p>
+                            <p class="text-green-600">+15.2% (5Y Return)</p>
+                        </div>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            View Prediction
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Repeat for other stock cards (AMZN, GOOGL, MSFT, TSLA) -->
+            </div>
+
+            <!-- Analysis Modal -->
+            <div id="analysisModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+                <div class="fixed inset-0 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+                                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                                    <i class="bi bi-x-lg text-2xl"></i>
+                                </button>
+                            </div>
+                            <div id="stockChart" class="h-[400px] mb-6"></div>
+                            <div class="space-y-4">
+                                <h3 class="text-xl font-bold">AI Analysis</h3>
+                                <div id="aiAnalysis" class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-gray-700">Loading analysis...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Modal and Chart functionality
+        const modal = document.getElementById('analysisModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const closeModal = document.getElementById('closeModal');
+        const stockCards = document.querySelectorAll('.stock-card');
+        const aiAnalysis = document.getElementById('aiAnalysis');
+
+        // Stock data simulation (Historical + Prediction)
+        const stockData = {
+            AAPL: {
+                name: 'Apple Inc.',
+                historicalData: generateHistoricalData(180, 150), // Simulate historical data
+                predictionData: generatePredictionData(180, 150), // Simulated prediction
+                analysis: "Based on our AI model's analysis of Apple's 5-year historical data, we predict a steady upward trend with potential volatility around product launch cycles. The 6-month forecast suggests a 12% growth potential with strong support levels."
+            },
+            AMZN: {
+                name: 'Amazon',
+                historicalData: generateHistoricalData(180, 130), // Simulate historical data
+                predictionData: generatePredictionData(180, 130), // Simulated prediction
+                analysis: "Amazon's future trajectory shows promising growth potential driven by AWS and e-commerce expansion. Our AI model predicts a 15% upside in the next 6 months with moderate volatility."
+            },
+            GOOGL: {
+                name: 'Google',
+                historicalData: generateHistoricalData(180, 140), // Simulate historical data
+                predictionData: generatePredictionData(180, 140), // Simulated prediction
+                analysis: "Google's AI initiatives and advertising revenue growth indicate a positive outlook. The model suggests a potential 10% appreciation with strong technical indicators supporting the upward trend."
+            },
+            MSFT: {
+                name: 'Microsoft',
+                historicalData: generateHistoricalData(180, 250), // Simulate historical data
+                predictionData: generatePredictionData(180, 250), // Simulated prediction
+                analysis: "Microsoft continues its strong growth due to cloud and software solutions. The 6-month prediction shows a 12% growth rate, with significant momentum in AI and enterprise services."
+            },
+            TSLA: {
+                name: 'Tesla',
+                historicalData: generateHistoricalData(180, 220), // Simulate historical data
+                predictionData: generatePredictionData(180, 220), // Simulated prediction
+                analysis: "Tesla's market dominance in EVs and energy solutions suggests an exciting future. The AI model forecasts a 20% upside potential, driven by new product launches and expansion into new markets."
+            }
+        };
+
+        stockCards.forEach(card => {
+            card.addEventListener('click', function () {
+                const stockSymbol = card.getAttribute('data-stock');
+                const data = stockData[stockSymbol];
+
+                modalTitle.textContent = data.name;
+                aiAnalysis.innerHTML = `<p class="text-gray-700">${data.analysis}</p>`;
+
+                plotStockChart(data.historicalData, data.predictionData, stockSymbol);
+
+                modal.classList.remove('hidden');
+            });
+        });
+
+        closeModal.addEventListener('click', function () {
+            modal.classList.add('hidden');
+        });
+
+        function generateHistoricalData(days, startPrice) {
+            const data = [];
+            let currentPrice = startPrice;
+            for (let i = 0; i < days; i++) {
+                currentPrice += (Math.random() - 0.5) * 5;  // Simulated historical data with smaller fluctuations
+                data.push({ x: i, y: currentPrice });
+            }
+            return data;
+        }
+
+        function generatePredictionData(days, startPrice) {
+            const data = [];
+            let currentPrice = startPrice;
+            for (let i = 0; i < days; i++) {
+                currentPrice += (Math.random() - 0.5) * 10;  // Simulated prediction data with larger fluctuations
+                data.push({ x: i, y: currentPrice });
+            }
+            return data;
+        }
+
+        function plotStockChart(historicalData, predictionData, symbol) {
+            const traceHistorical = {
+                x: historicalData.map(point => point.x),
+                y: historicalData.map(point => point.y),
+                mode: 'lines',
+                type: 'scatter',
+                name: `${symbol} Historical`
+            };
+
+            const tracePrediction = {
+                x: predictionData.map(point => point.x),
+                y: predictionData.map(point => point.y),
+                mode: 'lines',
+                type: 'scatter',
+                name: `${symbol} Prediction`,
+                line: { dash: 'dash' } // Dashed line for prediction
+            };
+
+            const layout = {
+                title: `Stock Price (Historical vs Prediction) for ${symbol}`,
+                xaxis: { title: 'Days' },
+                yaxis: { title: 'Price (USD)' }
+            };
+
+            Plotly.newPlot('stockChart', [traceHistorical, tracePrediction], layout);
+        }
+    </script>
+</body>
+</html>

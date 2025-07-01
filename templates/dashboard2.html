@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchlist</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* Watchlist Container */
+        .watchlist-container {
+            padding: 20px;
+        }
+
+        .watchlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .watchlist-header h2 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .add-stock-btn {
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .add-stock-btn:hover {
+            background-color: #155bb5;
+        }
+
+        /* Watchlist Items */
+        .watchlist-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .watchlist-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .watchlist-item:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .watchlist-item h3 {
+            font-size: 20px;
+            color: #1a73e8;
+            margin: 0;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .watchlist-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .watchlist-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>My Stock Watchlist</h1>
+    </div>
+
+    <!-- Watchlist Container -->
+    <div class="watchlist-container">
+        <!-- Header Section -->
+        <div class="watchlist-header">
+            <h2>Your Watchlist</h2>
+            <button class="add-stock-btn" onclick="showAddStockForm()">Add Stock</button>
+        </div>
+
+        <!-- Add Stock Form (hidden by default) -->
+        <div id="addStockForm" style="display: none; margin-bottom: 20px;">
+            <input type="text" id="stockSymbol" placeholder="Enter Stock Symbol" style="padding: 10px; font-size: 16px; border-radius: 4px; border: 1px solid #ccc; margin-right: 10px;">
+            <button onclick="addStock()" class="add-stock-btn">Add to Watchlist</button>
+            <button onclick="cancelAddStock()" class="add-stock-btn" style="background-color: #e0e0e0; color: #333; margin-left: 10px;">Cancel</button>
+        </div>
+
+        <!-- Watchlist Items -->
+        <div class="watchlist-items" id="watchlistItems">
+            <!-- Watchlist items will be added here dynamically -->
+        </div>
+    </div>
+
+    <script>
+        // Simulating an initial list of stocks (can be dynamically populated from the database)
+        const watchlist = [];
+
+        // Function to show the add stock form
+        function showAddStockForm() {
+            document.getElementById('addStockForm').style.display = 'block';
+        }
+
+        // Function to hide the add stock form
+        function cancelAddStock() {
+            document.getElementById('addStockForm').style.display = 'none';
+        }
+
+        // Function to add stock to the watchlist and redirect to the respective stock page
+        function addStock() {
+            const stockSymbol = document.getElementById('stockSymbol').value.trim();
+
+            if (stockSymbol) {
+                watchlist.push(stockSymbol); // Add stock to watchlist
+                document.getElementById('stockSymbol').value = '';  // Clear input field
+                updateWatchlistDisplay();  // Update the display of the watchlist
+                cancelAddStock();  // Hide the add stock form
+                redirectToStockPage(stockSymbol);  // Redirect to the stock's page
+            } else {
+                alert('Please enter a valid stock symbol.');
+            }
+        }
+
+        // Function to remove a stock from the watchlist
+        function removeStock(stock) {
+            const index = watchlist.indexOf(stock);
+            if (index > -1) {
+                watchlist.splice(index, 1);
+                updateWatchlistDisplay();  // Update the display of the watchlist
+            }
+        }
+
+        // Function to update the watchlist display
+        function updateWatchlistDisplay() {
+            const watchlistItemsContainer = document.getElementById('watchlistItems');
+            watchlistItemsContainer.innerHTML = '';  // Clear current list
+
+            // Display each stock in the watchlist
+            watchlist.forEach(stock => {
+                const stockElement = document.createElement('div');
+                stockElement.classList.add('watchlist-item');
+                stockElement.innerHTML = `
+                    <h3>${stock}</h3>
+                    <button class="remove-btn" onclick="removeStock('${stock}')">&times;</button>
+                `;
+                watchlistItemsContainer.appendChild(stockElement);
+            });
+        }
+
+        // Function to redirect to the corresponding stock page (e.g., amzn.html)
+        function redirectToStockPage(stockSymbol) {
+            // Map stock symbols to corresponding HTML pages
+            const stockPages = {
+                "AMZN": "amzn2.html",
+                "AAPL": "apple.html",
+                "GOOGL": "google.html",
+                "MSFT": "msft.html",
+                "TSLA": "tesla.html"
+            };
+
+            // Redirect to the corresponding stock page if it exists
+            if (stockPages[stockSymbol.toUpperCase()]) {
+                window.location.href = stockPages[stockSymbol.toUpperCase()];
+            } else {
+                alert('Stock page not available.');
+            }
+        }
+
+        // Initial call to display any pre-existing watchlist stocks (empty initially)
+        updateWatchlistDisplay();
+    </script>
+
+</body>
+</html>
