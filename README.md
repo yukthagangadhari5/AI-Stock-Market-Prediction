@@ -74,22 +74,22 @@ AI-Stock-Market-Prediction/
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-![Home Page](screenshots/homepage.png)
+![Home Page](homepage.png)
 
 ---
 
 ### 📊 Dashboard
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](dashboard.png)
 
 ---
 
 ### 📈 Prediction Graph
-![Prediction Graph](screenshots/prediction.png)
+![Prediction Graph](prediction.png)
 
 ---
 
 ### 🔮 Future Forecast
-![Prediction Forecast](screenshots/prediction 2.png)
+![Prediction Forecast](prediction 2.png)
 ---
 
 ## 🧠 How the LSTM Model Works
