@@ -1,289 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <style>
-        /* Global Styles */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-        }
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h2>Stock Predictor</h2>
+    <p>Enter a stock ticker and how many days ahead to predict.</p>
+  </div>
 
-        /* Dashboard Layout */
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: #1a73e8;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            transition: width 0.3s;
-        }
-
-        .sidebar h2 {
-            margin-bottom: 40px;
-            font-size: 24px;
-        }
-
-        .sidebar a {
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        .sidebar a:hover {
-            color: #e8eaf6;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 20px 40px;
-            overflow-x: hidden;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .header-buttons a {
-            padding: 10px 20px;
-            background-color: #1a73e8;
-            color: white;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .header-buttons a:hover {
-            background-color: #155bb5;
-        }
-
-        /* Stock Ticker Marquee */
-        .marquee {
-            background-color: #333;
-            color: white;
-            padding: 10px 0;
-            font-size: 16px;
-            white-space: nowrap;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-            animation-play-state: running;  /* Set the default state to 'running' */
-        }
-
-        @keyframes marquee {
-            from {
-                transform: translateX(100%);
-            }
-            to {
-                transform: translateX(-100%);
-            }
-        }
-
-        .marquee-content a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-        }
-
-        .marquee-content a:hover {
-            text-decoration: underline;
-        }
-
-        /* Stock List */
-        .stock-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .stock-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: box-shadow 0.3s ease;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .stock-card:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-            transform: translateY(-5px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .stock-card h3 {
-            font-size: 20px;
-            color: #1a73e8;
-            margin: 0;
-        }
-
-        /* Compare Stocks Section */
-        .compare-section {
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        .compare-section select {
-            padding: 10px;
-            font-size: 16px;
-            margin-right: 10px;
-            width: 200px;
-        }
-
-        .compare-section button {
-            padding: 10px 20px;
-            background-color: #1a73e8;
-            color: white;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-        }
-
-        .compare-section button:hover {
-            background-color: #155bb5;
-        }
-
-        /* Embed Looker Studio Report (hidden initially) */
-        #lookerReport {
-            display: none;
-            margin-top: 40px;
-            width: 100%;
-            height: 500px;
-        }
-
-        /* Responsive Sidebar */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Dashboard Container -->
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <h2>Dashboard</h2>
-            <a href="http://127.0.0.1:5500/templates/about%20us.html">About Us</a>
-            <a href="http://127.0.0.1:5500/templates/watchlist.html">Watchlist</a>
-            <a href="http://127.0.0.1:5500/templates/help.html">Help</a>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <header class="header">
-                <h1>Welcome to the One Trade </h1>
-                <div class="header-buttons">
-                    <a href="{{ url_for('login') }}">Login</a>
-                    <a href="{{ url_for('register') }}">Register</a>
-                </div>
-            </header>
-
-            <!-- Stock Ticker Marquee -->
-            <div class="marquee" id="marquee">
-                <div class="marquee-content">
-                    <a href="http://127.0.0.1:5500/templates/apple.html" target="_blank" rel="noopener noreferrer">Apple</a>
-                    <a href="http://127.0.0.1:5500/templates/google.html" target="_blank" rel="noopener noreferrer">Google</a>
-                    <a href="http://127.0.0.1:5500/templates/tesla.html" target="_blank" rel="noopener noreferrer">Tesla</a>
-                    <a href="http://127.0.0.1:5500/templates/msft.html" target="_blank" rel="noopener noreferrer">Microsoft</a>
-                    <a href="http://127.0.0.1:5500/templates/amzn.html" target="_blank" rel="noopener noreferrer">Amazon</a>
-                </div>
-            </div>
-
-            <!-- Stock List -->
-            <section class="stock-list" id="stockList">
-                <div class="stock-card" onclick="window.location.href='http://127.0.0.1:5500/templates/apple.html'">
-                    <h3>Apple</h3>
-                </div>
-                <div class="stock-card" onclick="window.location.href='http://127.0.0.1:5500/templates/google.html'">
-                    <h3>Google</h3>
-                </div>
-                <div class="stock-card" onclick="window.location.href='http://127.0.0.1:5500/templates/tesla.html'">
-                    <h3>Tesla</h3>
-                </div>
-                <div class="stock-card" onclick="window.location.href='http://127.0.0.1:5500/templates/msft.html'">
-                    <h3>Microsoft</h3>
-                </div>
-                <div class="stock-card" onclick="window.location.href='http://127.0.0.1:5500/templates/amzn.html'">
-                    <h3>Amazon</h3>
-                </div>
-            </section>
-
-            <!-- Compare Stocks Section -->
-            <section class="compare-section">
-                <h2>Compare Stocks</h2>
-                <form action="/compare_stocks" method="POST">
-                    <button type="button" id="compareBtn">Compare</button>
-                </form>
-            </section>
-
-            <!-- Looker Studio Report (Hidden initially) -->
-            <iframe id="lookerReport" src="https://lookerstudio.google.com/embed/reporting/63fcb0f2-017c-4570-bcec-e47d2d10de80/page/5C1VE" frameborder="0" allowfullscreen></iframe>
-
-        </div>
+  <div class="control-panel">
+    <div class="form-group">
+      <label>Stock Ticker</label>
+      <input type="text" id="ticker" value="AAPL" placeholder="e.g. AAPL, TSLA, GOOGL">
     </div>
+    <div class="form-group">
+      <label>Forecast Days</label>
+      <select id="days">
+        <option value="7">7 days</option>
+        <option value="14">14 days</option>
+        <option value="30" selected>30 days</option>
+        <option value="60">60 days</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="runPrediction()">
+      <span id="btn-text">🚀 Predict</span>
+    </button>
+  </div>
 
-    <script>
-        // Toggle the visibility of the Looker Studio report
-        document.getElementById("compareBtn").addEventListener("click", function() {
-            const iframe = document.getElementById("lookerReport");
-            iframe.style.display = iframe.style.display === "none" ? "block" : "none";
-        });
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p>Training LSTM model on historical data…</p>
+  </div>
 
-        // Check if the marquee is in the viewport
-        function isInViewport(element) {
-            const rect = element.getBoundingClientRect();
-            return rect.top >= 0 && rect.bottom <= window.innerHeight;
-        }
+  <div id="results" class="results hidden">
+    <div class="stats-row" id="stats-row"></div>
+    <div id="chart-container"></div>
+  </div>
+</div>
+{% endblock %}
 
-        // Pause/Resume marquee based on visibility
-        const marquee = document.getElementById("marquee");
-
-        function handleMarqueeVisibility() {
-            if (isInViewport(marquee)) {
-                marquee.querySelector('.marquee-content').style.animationPlayState = 'running';
-            } else {
-                marquee.querySelector('.marquee-content').style.animationPlayState = 'paused';
-            }
-        }
-
-        // Initial check
-        handleMarqueeVisibility();
-
-        // Check on scroll
-        window.addEventListener('scroll', handleMarqueeVisibility);
-    </script>
-
-</body>
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+{% endblock %}
